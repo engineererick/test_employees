@@ -1,0 +1,107 @@
+﻿@model IEnumerable<Test_Employees.Models.Employee>
+@{
+    ViewData["Title"] = "Employees";
+}
+
+@if (TempData["success_add"] != null)
+{
+    <script>
+        swal("SUCCESS", "Employee added succesfuly", "success")
+    </script>
+}
+
+@if (TempData["success_deleted"] != null)
+{
+    <script>
+        swal("SUCCESS", "Employee deleted succesfuly", "success")
+    </script>
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <input type="text" id="nameFilter" onkeyup="filterByName()" placeholder="Search for names..">
+        </div>
+        <div class="col align-content-lg-end">
+            <a class="btn btn-info" asp-action="Create" asp-controller="Employees">Add employee</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            @if (Model != null && Model.Count() > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped" id="employeesTable">
+                        <thead>
+                            <tr>
+                                <td>@Html.DisplayNameFor(e => e.RFC)</td>
+                                <td>@Html.DisplayNameFor(e => e.Name)</td>
+                                <td>@Html.DisplayNameFor(e => e.LastName)</td>
+                                <td>@Html.DisplayNameFor(e => e.BornDate)</td>
+                                <td>@Html.DisplayNameFor(e => e.Status)</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var employee in Model)
+                            {
+                                <tr>
+                                    <td>@employee.RFC</td>
+                                    <td>@employee.Name</td>
+                                    <td>@employee.LastName</td>
+                                    <td>@employee.BornDate.ToShortDateString()</td>
+                                    <td>@employee.Status</td>
+                                    <td>
+                                        <a asp-controller="Employees" asp-action="Edit" asp-route-id="@employee.Id" class="btn btn-warning">Edit</a>
+                                        <a onclick="deleteEmployee(@employee.Id)" class="btn btn-danger">Delete</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p>No employees were found</p>
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    function deleteEmployee(id) {
+        swal({
+            title: "Are you sure?",
+            text: "Once deleted, you will not be able to recover the employee",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+        .then((willDelete) => {
+            if (willDelete) {
+                location.href = '@Url.Action("Delete", "Employees")?id='+id;
+            }
+        });
+    }
+</script>
+<script>
+    function filterByName() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("nameFilter");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("employeesTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[1];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
